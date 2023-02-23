@@ -1,21 +1,28 @@
 import React, { useState, useRef, useEffect} from 'react';
 import './App.css';
-import FriendsList from './Components/FriendsList.js';
-import ChatPanel from './Components/ChatPanel.js';
+import Home from './pages/Home.js';
+import Chat from './pages/Chat.js';
 
 function App() {
+  const [user, setUser] = useState([]);
+  const apiUrl = 'https://api.projectnodenium.com/ChatApp/user.php?token=s16ond26&action=g';
+  let isLoggedin = false;
+  function getUser() {
+    fetch(apiUrl + '/')
+      .then(response => response.json())
+      .then(data => setUser(data));
+  }
+
+  function getPage(){
+    if (isLoggedin)
+      return <Chat />
+    return <Home/>
+  }
+
   return (
-    <div>
-      <div className="App">
-        <header className="App-header">
-          <h1>Chat App</h1>
-        </header>
-        <main>
-          <FriendsList />
-          <ChatPanel />
-        </main>
-      </div>
-    </div>
+    <main className='main-app'>
+      {getPage()}
+    </main>
   );
 }
 

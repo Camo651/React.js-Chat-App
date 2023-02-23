@@ -4,14 +4,16 @@ import Message from './Message.js'
 
 export default function ChatPanel() {
   return (
-    <div>
+    <>
       <div className="chat-panel">
-        <Message />
-        <Message />
-        <Message />
-        <Message />
+        <div className="messages-pane">
+          <Message />
+          <Message />
+          <Message />
+          <Message />
+        </div>
+        <MessageBar />
       </div>
-      <MessageBar />
-    </div>
+    </>
   )
 }
