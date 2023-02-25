@@ -7,9 +7,16 @@ export default function LoginModal({props}) {
         e.preventDefault();
         let username = e.target.username.value;
         let password = e.target.password.value;
-        let apiUrl = 'https://api.projectnodenium.com/ChatApp/getUUID.php?token=s16ond26&type=u&payload=' + username;
+        let apiUrl = 'https://api.projectnodenium.com/ChatApp/getUUID.php';
 
-        fetch(apiUrl)
+        fetch(apiUrl,{
+            method: 'POST',
+            body: JSON.stringify({
+                token : 's16ond26',
+                type : 'u',
+                payload : username
+            })
+        })
         .then(response => response.json())
         .then(data => {
             console.log('Success:', data);
