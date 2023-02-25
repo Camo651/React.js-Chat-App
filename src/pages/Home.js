@@ -3,16 +3,16 @@ import LoginModal from '../Components/LoginModal.js';
 import RegisterModal from '../Components/RegisterModal.js';
 
 
-export default function Home() {
+export default function Home({props}) {
 
   const [modal, setModal] = React.useState('');
 
   function clickHandler(e){
       let type = e.target.dataset.type;
       if (type === 'login'){
-          setModal(<LoginModal />)
+          setModal(<LoginModal key='loginModal' props={props}/>)
       } else if (type === 'register'){
-          setModal(<RegisterModal />)
+          setModal(<RegisterModal key='registerModal' props={props}/>)
       }
   }
   

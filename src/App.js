@@ -4,24 +4,27 @@ import Home from './pages/Home.js';
 import Chat from './pages/Chat.js';
 
 function App() {
-  const [user, setUser] = useState([]);
-  const apiUrl = 'https://api.projectnodenium.com/ChatApp/user.php?token=s16ond26&action=g';
-  let isLoggedin = false;
-  function getUser() {
-    fetch(apiUrl + '/')
-      .then(response => response.json())
-      .then(data => setUser(data));
-  }
+  const [user, stateSetUser] = useState([]);
+  let props = {
+    setUser: setUser,
+    getUser: getUser
+  };
 
-  function getPage(){
-    if (isLoggedin)
-      return <Chat />
-    return <Home/>
+  function setUser(_user){
+    stateSetUser({..._user});
   }
-
+  function getUser(){
+    return user;
+  }
+  function getPage(_user){
+    if (_user !== undefined && (_user+"").length > 0)
+      return <Chat key='chat' props={props}/>;
+    else
+      return <Home key='home' props={props}/>;
+  }
   return (
     <main className='main-app'>
-      {getPage()}
+      {getPage(user)}
     </main>
   );
 }
