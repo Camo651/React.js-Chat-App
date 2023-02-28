@@ -1,4 +1,5 @@
 import React from 'react'
+import POST from '../ApiHandler.js';
 
 export default function AddFriend({addFriend}) {
     React.useEffect(() => {
@@ -15,33 +16,15 @@ export default function AddFriend({addFriend}) {
         document.getElementById("showAddFriendButton").innerHTML = input.style.display === "none" ? "+" : "x";
     }
 
-    function formHandler(e){
+    async  function formHandler(e){
         e.preventDefault();
         let username = e.target.username.value;
-        let apiUrl = 'https://api.projectnodenium.com/ChatApp/getUUID.php';
-
-        fetch(apiUrl,{
-            method: 'POST',
-            body: JSON.stringify({
-                token : 's16ond26',
-                type : 'u',
-                payload : username
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Success:', data);
-            if (data.status === 'SUCCESS'){
-                let uuid = data.payload;
-                addFriend(uuid);
-            }else{
-                alert('Data Error: ' + data.status);
-            }
-        })
-        .catch((error) => {
-            alert('Return Error: ' + error);
+        let uuid = await POST('g', 'u', username, undefined);
+        if(uuid.status !== ""){
+            alert('Error in adding friend: ' + uuid.status);
+            return;
         }
-        );
+        addFriend(uuid.payload);
     }
 
     return (

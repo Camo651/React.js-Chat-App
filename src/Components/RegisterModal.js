@@ -1,10 +1,11 @@
 import React from 'react'
 import { v4 as uuidv4 } from 'uuid';
 import sha from 'js-sha256';
+import POST from '../ApiHandler.js';
 
 export default function RegisterModal({props}) {
 
-    function formHandler(e){
+    async function formHandler(e){
         e.preventDefault();
         let username = e.target.username.value;
         let email = e.target.email.value;
@@ -15,40 +16,30 @@ export default function RegisterModal({props}) {
             return;
         }
 
+        //check that there is not already a user with that username or email
+        if(await POST('g', 'u', username, undefined).status === "" ){
+            alert('Account already exists with that username');
+            return;
+        }
+        if(await POST('g', 'e', email, undefined).status === "" ){
+            alert('Account already exists with that email');
+            return;
+        }
+
         let uuid = uuidv4();
         let data = {
-            uuid : uuid,
-            name : username,
-            pwd : password,
-            email : email,
-            dms : []
+            uuid: uuid,
+            name: username,
+            pwd: password,
+            email: email,
+            dms: [uuid],
         }
-        data = {
-            token : 's16ond26',
-            action : 'c',
-            uuid : uuid,
-            payload : data
-        }
-        let dataJSON = JSON.stringify(data);
-        let apiUrl = 'https://api.projectnodenium.com/ChatApp/user.php';
-        console.log(apiUrl);
-        fetch(apiUrl,{
-            method: 'POST',
-            body: dataJSON
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Success:', data);
-            if (data.status === 'SUCCESS'){
-                props.setUser(data.payload);
-            }else{
-                alert('Data Error: ' + data.status);
-            }
-        })
-        .catch((error) => {
-            alert('Return Error: ' + error);
-        }
-        );
+
+        await POST('u', 'w', data, uuid);
+
+        await POST('f' , 'w', "Welcome to the chat! This is your own DMs, add some friends to get started!", uuid + '_' + uuid);
+        
+        props.changeUser(uuid);
     }
 
     return (

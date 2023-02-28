@@ -1,30 +1,29 @@
-import React, { useState, useRef, useEffect} from 'react';
+import React from 'react';
 import './App.css';
 import Home from './pages/Home.js';
 import Chat from './pages/Chat.js';
 
 function App() {
-  const [user, stateSetUser] = useState([]);
-  let props = {
-    setUser: setUser,
-    getUser: getUser
-  };
+  const [user, setUser] = React.useState(""); //user is the uuid of the current user
 
-  function setUser(_user){
-    stateSetUser({..._user});
+  function changeUser(newUser){
+    setUser(newUser);
   }
   function getUser(){
-    return user;
+    return user+"";
   }
-  function getPage(_user){
-    if (_user !== undefined && (_user+"").length > 0)
+
+  let props = { changeUser: changeUser, getUser: getUser };
+
+  function getPage(){
+    if (user.length !== 0)
       return <Chat key='chat' props={props}/>;
     else
       return <Home key='home' props={props}/>;
   }
   return (
     <main className='main-app'>
-      {getPage(user)}
+      {getPage()}
     </main>
   );
 }

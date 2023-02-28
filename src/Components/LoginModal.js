@@ -1,64 +1,25 @@
 import React from 'react'
 import sha from 'js-sha256';
-
+import POST from '../ApiHandler.js';
 export default function LoginModal({props}) {
 
-    function formHandler(e){
+    async function formHandler(e){
         e.preventDefault();
         let username = e.target.username.value;
-        let password = e.target.password.value;
-        let apiUrl = 'https://api.projectnodenium.com/ChatApp/getUUID.php';
-
-        fetch(apiUrl,{
-            method: 'POST',
-            body: JSON.stringify({
-                token : 's16ond26',
-                type : 'u',
-                payload : username
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Success:', data);
-            if (data.status === 'SUCCESS'){
-                let uuid = data.payload;
-                let apiUrl = 'https://api.projectnodenium.com/ChatApp/user.php';
-                fetch(apiUrl,{
-                    method: 'POST',
-                    body: JSON.stringify({
-                        token : 's16ond26',
-                        action : 'g',
-                        uuid : uuid,
-                        payload : {}
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Success:', data);
-                    if (data.status === 'SUCCESS'){
-                        let user = data.payload;
-                        let password = sha(e.target.password.value);
-                        if (user.pwd === password){
-                            props.setUser(user);
-                        }else{
-                            alert('Password does not match');
-                        }
-                    }else{
-                        alert('Data Error: ' + data.status);
-                    }
-                })
-                .catch((error) => {
-                    alert('Return Error: ' + error);
-                }
-                );
-            }else{
-                alert('Data Error: ' + data.status);
-            }
-        })
-        .catch((error) => {
-            alert('Return Error: ' + error);
+        let password = sha(e.target.password.value);
+        let uuid = await POST('g', 'u', username, undefined);
+        uuid = uuid.payload;
+        let userData = await POST('u', 'r', undefined, uuid);
+        let truePass = userData.payload.pwd;
+        if(userData.status !== ""){
+            alert('Error in login: ' + userData.status);
+            return;
         }
-        );
+        if (truePass === password){
+            props.changeUser(uuid);
+        }else{
+            alert('Incorrect password');
+        }
     }
 
 
