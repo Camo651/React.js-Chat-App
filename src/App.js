@@ -13,16 +13,10 @@ function App() {
     return user+"";
   }
 
+
   let props = { changeUser: changeUser, getUser: getUser };
 
-  let WS_URL = 'ws://api.projectnodenium.com/ChatApp/webSocket.php';
-  let ws = new WebSocket(WS_URL);
-  ws.onopen = function(){
-    console.log("Connected to server");
-  }
-  ws.onmessage = function(e){
-    console.log(e.data);
-  }
+
 
   function getPage(){
     if (user.length !== 0)

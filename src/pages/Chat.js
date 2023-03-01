@@ -7,6 +7,10 @@ export default function Chat({props}) {
   let myUUID = props.getUser();
   const [currentChat, setCurrentChat] = React.useState(myUUID);
 
+  React.useEffect(() => {
+    console.log("change chat ", currentChat);
+  },[currentChat]);
+
   async function addFriend(otherUUID){
     let myData = await POST('u', 'r', undefined, myUUID);
     let otherData = await POST('u', 'r', undefined, otherUUID);
@@ -38,17 +42,20 @@ export default function Chat({props}) {
   }
 
   function changeDm(otherUUID){
+    console.log("change chat2 ", otherUUID);
     if(otherUUID === undefined)
       alert('Error in changing dm');
-    if(otherUUID === currentChat)
+    if(otherUUID === currentChat){
+      alert('You are already in this dm');
       return;
+    }
     setCurrentChat(otherUUID);
   }
   
   return (
     <>
         <div className="chat">
-            <FriendsList key={'friendList_'+currentChat} myUUID={myUUID} addFriend={addFriend} currentChat={currentChat} changeDm={changeDm}/>
+            <FriendsList key={'friendList_'} myUUID={myUUID} addFriend={addFriend} currentChat={currentChat} changeDm={changeDm}/>
             <ChatPanel key={'chatPanel_'+currentChat} currentChat={currentChat} myUUID={myUUID}/>
         </div>
     </>

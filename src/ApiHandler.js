@@ -14,6 +14,8 @@ const POST = async function (type, rw, payload, data){
         case "u": 
             type="user"; 
             break;
+        case "n":
+            type="socket";
         default: break;
     }
 

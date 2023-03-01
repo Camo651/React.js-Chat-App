@@ -9,8 +9,21 @@ export default function ChatPanel({currentChat, myUUID}) { // currentChat is the
   const [chatMemebers, stateSetChatMembers] = React.useState(["Loading...", "Loading..."]);
 
   React.useEffect(() => {
-    getMessages();
-  },[]);
+    let isAborted = false;
+    const listenLoop = async () => {
+      await getMessages();
+      while(true){
+        await listenForNotifications();
+        if(isAborted)
+          return;
+        await new Promise(r => setTimeout(r, 3000));
+      }
+    }
+    listenLoop();
+    return () => {
+      isAborted = true;
+    }
+  },[currentChat]);
 
   async function getChatMemebers(){
     let name1 = await POST('u', 'r', undefined, myUUID);
@@ -61,9 +74,6 @@ export default function ChatPanel({currentChat, myUUID}) { // currentChat is the
         merged.push(<Message key={key} time={time} message={message} name={name2} isMe={false}/>);
       }
 
-    console.log(myData);
-    console.log(otherData);
-
     merged.sort((a, b) => {
       let aTime = a.props.time;
       let bTime = b.props.time;
@@ -89,30 +99,56 @@ export default function ChatPanel({currentChat, myUUID}) { // currentChat is the
   }
 
   async function sendMessage(message){
-    
-  }
-
-  async function addMessage(message){
+    console.log('sending message: ' + message);
     let sendReq = await POST('f', 'w', message, myUUID + '_' + currentChat)
     let newMsgData = await POST('f', 'r', 1, myUUID + '_' + currentChat);
-
-    console.log(sendReq);
-    console.log(newMsgData);
 
     if(sendReq.status !== "" || newMsgData.status !== ""){
       alert('Error in sending message: ' + sendReq.status + ' ' + newMsgData.status);
       return;
     }
-    
     let newMessage = newMsgData.payload;
     let newMessageKey = Object.keys(newMessage)[0];
-    let newMessageTime = new Date(newMessage[newMessageKey][0] *1000).toLocaleDateString();
+    let newMessageTime = new Date(newMessage[newMessageKey][0] * 1000).toLocaleString();
     let newMessageText = newMessage[newMessageKey][1];
+    addMessage(newMessageKey, newMessageTime, newMessageText, chatMemebers[0]);
+    let msgData = {
+      "type": "message",
+      "payload": {
+        "key": newMessageKey,
+        "time": newMessage[newMessageKey][0],
+        "message": newMessageText,
+        "sender": myUUID
+      }
+    }
+    let notification = await POST('n', 'w', msgData, currentChat);
+    if(notification.status !== ""){
+      alert('Error in sending notification: ' + notification.status);
+      return;
+    }
+  }
 
-    let name1 = chatMemebers[0];
+  async function listenForNotifications(){
+    let data = await POST('n', 'd', undefined, myUUID);
+    if(data.status !== ""){
+      return;
+    }
+    let notifications = data.payload;
+    for(let i = 0; i < notifications.length; i++){
+      let notification = notifications[i];
+      if(notification.type === "message"){
+        let key = notification.payload.key;
+        let time = new Date(notification.payload.time).toLocaleString();
+        let message = notification.payload.message;
+        let sender = notification.payload.sender;
+        if(sender !== myUUID && sender === currentChat)
+          addMessage(key, time, message, chatMemebers[1]);
+      }
+    }
+  }
 
-    let newMessageElement = <Message key={newMessageKey} time={newMessageTime} message={newMessageText} name={name1} isMe={true}/>;
-
+  function addMessage(key, time, message, sender){
+    let newMessageElement = <Message key={key} time={time} message={message} name={sender}/>;
     stateSetMessages([newMessageElement, ...messages]);
     stateSetLastMessage(Date.now());
   }
