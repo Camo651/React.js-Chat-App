@@ -8,6 +8,8 @@ export default function MessageBar({addMessage}) {
                 e.preventDefault();
                 addMessage(e.target[0].value);
                 e.target[0].value = "";
+                e.target[0].focus();
+                e.target[0].select();
               }}>
             <input type="text" placeholder="Type a message..." />
             <button>Send</button>

@@ -32,6 +32,7 @@ export default function RegisterModal({props}) {
             name: username,
             pwd: password,
             email: email,
+            lastSeed: Date.now()/1000,
             dms: [uuid],
         }
 

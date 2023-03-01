@@ -10,7 +10,7 @@ export default function ChatPanel({currentChat, myUUID}) { // currentChat is the
 
   React.useEffect(() => {
     getMessages();
-  });
+  },[]);
 
   async function getChatMemebers(){
     let name1 = await POST('u', 'r', undefined, myUUID);
@@ -44,8 +44,8 @@ export default function ChatPanel({currentChat, myUUID}) { // currentChat is the
       return;
     }
 
-    let m1 = myData.payload[0];
-    let m2 = otherData.payload[0];
+    let m1 = myData.payload;
+    let m2 = otherData.payload;
 
     let merged = [];
 
@@ -60,6 +60,9 @@ export default function ChatPanel({currentChat, myUUID}) { // currentChat is the
         let message = m2[key][1];
         merged.push(<Message key={key} time={time} message={message} name={name2} isMe={false}/>);
       }
+
+    console.log(myData);
+    console.log(otherData);
 
     merged.sort((a, b) => {
       let aTime = a.props.time;
@@ -78,22 +81,30 @@ export default function ChatPanel({currentChat, myUUID}) { // currentChat is the
       let date = new Date(unixTime);
       let dateString = date.toLocaleString();
       merged[i] = React.cloneElement(merged[i], {time: dateString});
-
     }
 
+    merged.reverse();
+
     stateSetMessages(merged);
+  }
+
+  async function sendMessage(message){
+    
   }
 
   async function addMessage(message){
     let sendReq = await POST('f', 'w', message, myUUID + '_' + currentChat)
     let newMsgData = await POST('f', 'r', 1, myUUID + '_' + currentChat);
 
+    console.log(sendReq);
+    console.log(newMsgData);
+
     if(sendReq.status !== "" || newMsgData.status !== ""){
       alert('Error in sending message: ' + sendReq.status + ' ' + newMsgData.status);
       return;
     }
     
-    let newMessage = newMsgData.payload[0];
+    let newMessage = newMsgData.payload;
     let newMessageKey = Object.keys(newMessage)[0];
     let newMessageTime = new Date(newMessage[newMessageKey][0] *1000).toLocaleDateString();
     let newMessageText = newMessage[newMessageKey][1];
@@ -102,7 +113,7 @@ export default function ChatPanel({currentChat, myUUID}) { // currentChat is the
 
     let newMessageElement = <Message key={newMessageKey} time={newMessageTime} message={newMessageText} name={name1} isMe={true}/>;
 
-    stateSetMessages([...messages, newMessageElement]);
+    stateSetMessages([newMessageElement, ...messages]);
     stateSetLastMessage(Date.now());
   }
 
@@ -112,7 +123,7 @@ export default function ChatPanel({currentChat, myUUID}) { // currentChat is the
         <div className="messages-pane">
           {messages}
         </div>
-        <MessageBar key={lastMessage} addMessage={addMessage}/>
+        <MessageBar key={lastMessage} addMessage={sendMessage}/>
       </div>
     </>
   )

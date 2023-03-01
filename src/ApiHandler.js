@@ -4,7 +4,9 @@ const POST = async function (type, rw, payload, data){
     switch(type){
         case "f": 
             type="feed";
-            payload = (payload === undefined ? 1000000 : payload);
+            if ((isNaN(payload) || payload === undefined) && rw === "r"){
+                payload = 1000;
+            }
             break;
         case "g": 
             type="getUUID"; 

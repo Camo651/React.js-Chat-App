@@ -9,7 +9,7 @@ export default function FriendsList({myUUID, addFriend, changeDm, currentChat}) 
 
   React.useEffect(() => {
     loadFriendsAsync();
-  });
+  },[]);
 
   function getFriends(){
     if(friendsList.then !== undefined){
@@ -26,7 +26,8 @@ export default function FriendsList({myUUID, addFriend, changeDm, currentChat}) 
   }
 
   async function loadFriendsAsync(){
-    let data = await POST('u', 'r', undefined, myUUID);
+    console.log('loading friends');
+    let data = await POST('u', 'rs', undefined, myUUID);
     if(data.status !== ""){
       alert('Error in getting friends: ' + data.status);
       return;

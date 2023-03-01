@@ -9,7 +9,7 @@ export default function LoginModal({props}) {
         let password = sha(e.target.password.value);
         let uuid = await POST('g', 'u', username, undefined);
         uuid = uuid.payload;
-        let userData = await POST('u', 'r', undefined, uuid);
+        let userData = await POST('u', 'rs', undefined, uuid);
         let truePass = userData.payload.pwd;
         if(userData.status !== ""){
             alert('Error in login: ' + userData.status);
