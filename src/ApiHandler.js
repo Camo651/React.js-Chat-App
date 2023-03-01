@@ -21,6 +21,7 @@ const POST = async function (type, rw, payload, data){
 
 
     let url = MAIN_URL + type + ".php";
+    let timer1 = Date.now();
     return fetch(url,{
         method: 'POST',
         body: JSON.stringify({
@@ -32,7 +33,8 @@ const POST = async function (type, rw, payload, data){
     })
     .then(response => response.json())
     .then(data => {
-        return {status: data.status, payload: data.payload}
+        let timer2 = Date.now();
+        return {status: data.status, payload: data.payload, time: (timer2 - timer1)}
     })
     .catch((error) => {
         alert('API ERROR: ' + error);

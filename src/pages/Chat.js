@@ -46,7 +46,6 @@ export default function Chat({props}) {
     if(otherUUID === undefined)
       alert('Error in changing dm');
     if(otherUUID === currentChat){
-      alert('You are already in this dm');
       return;
     }
     setCurrentChat(otherUUID);

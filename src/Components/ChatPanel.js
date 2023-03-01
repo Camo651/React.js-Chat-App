@@ -10,13 +10,15 @@ export default function ChatPanel({currentChat, myUUID}) { // currentChat is the
 
   React.useEffect(() => {
     let isAborted = false;
+    let intervalTime = 3000;
     const listenLoop = async () => {
       await getMessages();
       while(true){
-        await listenForNotifications();
+        let respTime = await listenForNotifications();
+        intervalTime = Math.max(Math.min(respTime * 30, 20000), 1000);
         if(isAborted)
           return;
-        await new Promise(r => setTimeout(r, 3000));
+        await new Promise(r => setTimeout(r, intervalTime));
       }
     }
     listenLoop();
@@ -130,8 +132,9 @@ export default function ChatPanel({currentChat, myUUID}) { // currentChat is the
 
   async function listenForNotifications(){
     let data = await POST('n', 'd', undefined, myUUID);
+    let responseTime = data.time;
     if(data.status !== ""){
-      return;
+      return responseTime;
     }
     let notifications = data.payload;
     for(let i = 0; i < notifications.length; i++){
@@ -145,6 +148,7 @@ export default function ChatPanel({currentChat, myUUID}) { // currentChat is the
           addMessage(key, time, message, chatMemebers[1]);
       }
     }
+    return responseTime;
   }
 
   function addMessage(key, time, message, sender){
