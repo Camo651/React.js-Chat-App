@@ -16,6 +16,10 @@ const POST = async function (type, rw, payload, data){
             break;
         case "n":
             type="socket";
+            break;
+        case "e":
+            type="sendEmail";
+            break;
         default: break;
     }
 
@@ -37,7 +41,8 @@ const POST = async function (type, rw, payload, data){
         return {status: data.status, payload: data.payload, time: (timer2 - timer1)}
     })
     .catch((error) => {
-        alert('API ERROR: ' + error);
+        console.error('Error:', error);
+        return {status: error, payload: {}, time: 0}
     });
 }
 

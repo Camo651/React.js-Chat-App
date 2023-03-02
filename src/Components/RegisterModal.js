@@ -32,8 +32,10 @@ export default function RegisterModal({props}) {
             name: username,
             pwd: password,
             email: email,
-            lastSeed: Date.now()/1000,
+            joined: Date.now()/1000,
+            lastOnline: Date.now()/1000,
             dms: [uuid],
+            reqs: []
         }
 
         await POST('u', 'w', data, uuid);

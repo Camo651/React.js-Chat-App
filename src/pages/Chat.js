@@ -6,43 +6,28 @@ import POST from '../ApiHandler.js';
 export default function Chat({props}) {
   let myUUID = props.getUser();
   const [currentChat, setCurrentChat] = React.useState(myUUID);
-
-  React.useEffect(() => {
-    console.log("change chat ", currentChat);
-  },[currentChat]);
+  const [addedFriend, setAddedFriend] = React.useState("");
 
   async function addFriend(otherUUID){
-    let myData = await POST('u', 'r', undefined, myUUID);
-    let otherData = await POST('u', 'r', undefined, otherUUID);
-
-    if(myData.status !== "" || otherData.status !== ""){
-      alert('Error in adding friend: ' + myData.status + ' ' + otherData.status);
+    let myData = await POST('u', 'rs', undefined, myUUID);
+    if(myData.status !== ""){
+      alert('Error in adding friend: ' + myData.status);
       return;
     }
-
-    if(myData.payload.dms.includes(otherUUID) || otherData.payload.dms.includes(myUUID)){
+    if(myData.payload.dms.includes(otherUUID)){
       alert('You are already friends with this user');
       return;
     }
 
     myData.payload.dms.push(otherUUID);
-    otherData.payload.dms.push(myUUID);
-
-    let otherEmail = otherData.payload.email;
-
-    // TODO send email to other user to notify them of the new dm
 
     await POST('u', 'w', myData.payload, myUUID);
-    await POST('u', 'w', otherData.payload, otherUUID);
-
-    await POST('f', 'w', "Hi!, I'm " + myData.payload.name + ".", myUUID + '_' + otherUUID);
-    await POST('f', 'w', "Hi!, I'm " + otherData.payload.name + ".", otherUUID + '_' + myUUID);
-
+    await POST('f', 'w', myData.payload.name + " has entered the chat!", myUUID + '_' + otherUUID);
+    setAddedFriend(otherUUID);
     changeDm(otherUUID);
   }
 
   function changeDm(otherUUID){
-    console.log("change chat2 ", otherUUID);
     if(otherUUID === undefined)
       alert('Error in changing dm');
     if(otherUUID === currentChat){
@@ -51,11 +36,16 @@ export default function Chat({props}) {
     setCurrentChat(otherUUID);
   }
   
+  function friendReqNotif(uuid){
+    alert('You have a new friend request from ' + uuid + '!');
+    setAddedFriend(uuid);
+  }
+  
   return (
     <>
         <div className="chat">
-            <FriendsList key={'friendList_'} myUUID={myUUID} addFriend={addFriend} currentChat={currentChat} changeDm={changeDm}/>
-            <ChatPanel key={'chatPanel_'+currentChat} currentChat={currentChat} myUUID={myUUID}/>
+            <FriendsList key={'friendList_'} myUUID={myUUID} addFriend={addFriend} currentChat={currentChat} changeDm={changeDm} addedFriend={addedFriend}/>
+            <ChatPanel key={'chatPanel_'+currentChat} currentChat={currentChat} myUUID={myUUID} friendReqNotif={friendReqNotif}/>
         </div>
     </>
   )
